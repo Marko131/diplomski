@@ -1,1 +1,1 @@
-# diplomski
+# README
