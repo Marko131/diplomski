@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {View, StyleSheet, ToastAndroid} from 'react-native';
 import NavigationItem from './NavigationItem';
 import AsyncStorage from '@react-native-community/async-storage';

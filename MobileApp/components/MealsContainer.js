@@ -11,9 +11,13 @@ import {
 } from 'react-native';
 import Meal from './Meal';
 import AddMealModal from './AddMealModal';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import GenerateMealPlanModal from './GenerateMealPlanModal';
+
 const MealsContainer = props => {
   const [modalVisible, setModalVisible] = useState(false);
   const [meals, setMeals] = useState([]);
+  const [modalContent, setModalContent] = useState(null);
 
   useEffect(() => {
     showMeals();
@@ -46,24 +50,51 @@ const MealsContainer = props => {
     ]);
     props.refresh();
   };
+
+  const showAddMealModal = () => {
+    setModalContent(
+      <AddMealModal hideModal={setModalVisible} addMealToList={addToList} />,
+    );
+  };
+
+  const showGenerateMealPlanModal = () => {
+    setModalContent(<GenerateMealPlanModal hideModal={setModalVisible} />);
+  };
   return (
     <SafeAreaView style={{flex: 1}}>
       <Text style={styles.header}> MEALS </Text>
-      <ScrollView>{meals}</ScrollView>
+      {meals.length > 0 && <ScrollView>{meals}</ScrollView>}
 
+      {meals.length === 0 && (
+        <>
+          <TouchableOpacity
+            style={styles.generateButton}
+            onPress={() => {
+              showGenerateMealPlanModal();
+              setModalVisible(true);
+            }}>
+            <View style={styles.generateView}>
+              <Icon
+                style={styles.generateIcon}
+                name="restaurant-menu"
+                size={50}
+                color="white"
+              />
+              <Text style={styles.generateText}> Generate meal plan</Text>
+            </View>
+          </TouchableOpacity>
+        </>
+      )}
       <TouchableOpacity
         style={styles.addMealButton}
-        onPress={() => setModalVisible(true)}>
-        <Text style={styles.buttonText}>Add meal</Text>
-      </TouchableOpacity>
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert('Modal has been closed.');
+        onPress={() => {
+          showAddMealModal();
+          setModalVisible(true);
         }}>
-        <AddMealModal hideModal={setModalVisible} addMealToList={addToList} />
+        <Text style={styles.addMealText}>Add meal</Text>
+      </TouchableOpacity>
+      <Modal animationType="fade" transparent={true} visible={modalVisible}>
+        {modalContent}
       </Modal>
     </SafeAreaView>
   );
@@ -82,12 +113,44 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   addMealButton: {
-    backgroundColor: 'white',
+    backgroundColor: '#353535',
     paddingVertical: 10,
+    marginTop: 'auto',
   },
-  buttonText: {
+  addMealText: {
+    color: 'white',
     textAlign: 'center',
     textTransform: 'uppercase',
+    fontWeight: 'bold',
+  },
+  generateButton: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    borderRadius: 10,
+  },
+  generateView: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+  },
+  generateText: {
+    textAlign: 'center',
+    color: 'rgba(0, 255, 152, 1)',
+    //color: 'white',
+    fontWeight: 'bold',
+    fontSize: 20,
+    textTransform: 'uppercase',
+  },
+  generateIcon: {
+    backgroundColor: '#353535',
+    borderRadius: 50,
+    padding: 20,
+    color: 'rgba(0, 255, 152, 1)',
+    marginBottom: 20,
   },
 });
 

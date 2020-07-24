@@ -12,7 +12,7 @@ const MacroProgress = props => {
         progress={props.progress}
         width={200}
         color={props.progress > 1 ? '#d50000' : 'rgba(0, 255, 152, 1)'}
-        unfilledColor="rgb(0, 106, 63)"
+        unfilledColor="#999"
         borderWidth={0}
         width={width}
         height={8}
