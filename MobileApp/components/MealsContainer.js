@@ -26,13 +26,7 @@ const MealsContainer = props => {
   const showMeals = () => {
     if (!props.day.mealRecipes) return;
     let mealsComponent = props.day.mealRecipes.map((m, index) => (
-      <Meal
-        key={index}
-        meal={m}
-        imageUrl={
-          'https://www.thegraciouspantry.com/wp-content/uploads/2018/08/clean-eating-lunch-box-burritos-v-1-.jpg'
-        }
-      />
+      <Meal key={index} meal={m} refresh={props.refresh} />
     ));
     setMeals(mealsComponent);
   };
@@ -40,13 +34,7 @@ const MealsContainer = props => {
   const addToList = meal => {
     setMeals([
       ...meals,
-      <Meal
-        key={meals.length + 1}
-        meal={meal}
-        imageUrl={
-          'https://www.thegraciouspantry.com/wp-content/uploads/2018/08/clean-eating-lunch-box-burritos-v-1-.jpg'
-        }
-      />,
+      <Meal key={meals.length + 1} meal={meal} refresh={props.refresh} />,
     ]);
     props.refresh();
   };

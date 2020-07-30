@@ -12,4 +12,5 @@ public interface UserMealPlanRepository extends JpaRepository<UserMealPlan, Inte
 
     UserMealPlan findTopByUserIdAndDateOrderByIdDesc(Integer userId, Date date);
     void deleteAllByUserIdAndDate(Integer userId, Date date);
+    
 }

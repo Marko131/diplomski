@@ -9,9 +9,9 @@
 import React, {useState} from 'react';
 import {Text, AsyncStorage, Button} from 'react-native';
 import HomePage from './components/HomePage';
-import LoginPage from './components/LoginPage';
+import LoginPage from './components/auth/LoginPage';
 import {Router, Stack, Scene} from 'react-native-router-flux';
-import RegisterPage from './components/RegisterPage';
+import RegisterPage from './components/auth/RegisterPage';
 const App = () => {
   const [accessToken, setAccessToken] = useState(null);
 

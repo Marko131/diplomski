@@ -1,10 +1,13 @@
 package ftn.sbnz.SbnzProject.controller;
 
+import ftn.sbnz.SbnzProject.dto.AddMealDTO;
+import ftn.sbnz.SbnzProject.model.MealRecipe;
 import ftn.sbnz.SbnzProject.model.User;
 import ftn.sbnz.SbnzProject.model.UserMealPlan;
 import ftn.sbnz.SbnzProject.model.spoonacular.Meal;
 import ftn.sbnz.SbnzProject.model.spoonacular.MealPlan;
 import ftn.sbnz.SbnzProject.model.spoonacular.NutritionInfo;
+import ftn.sbnz.SbnzProject.model.spoonacular.SearchMealResult;
 import ftn.sbnz.SbnzProject.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +34,9 @@ public class SpoonacularController {
 
     @Value("${informationBulkUrl}")
     private String informationBulkUrl;
+
+    @Value("${complexSearchUrl}")
+    private String complexSearchUrl;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -79,15 +85,7 @@ public class SpoonacularController {
 
     @GetMapping("/nutrition-info/{id}")
     public ResponseEntity<NutritionInfo> getNutritionInfo(@PathVariable("id") Integer id) {
-        String url = String.format("https://api.spoonacular.com/recipes/%d/nutritionWidget.json", id);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        UriComponentsBuilder builder = UriComponentsBuilder
-                .fromHttpUrl(url)
-                .queryParam("apiKey", apiKey);
-        HttpEntity request = new HttpEntity(headers);
-        ResponseEntity<NutritionInfo> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, request, NutritionInfo.class);
-        return response;
+        return getNutritionInfoApi(id);
     }
 
     @PostMapping("meal-plan")
@@ -104,6 +102,12 @@ public class SpoonacularController {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserMealPlan mealPlan = spoonacularService.getMealPlan(email);
 
+        if (mealPlan == null)
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+
+        if (mealPlan.getMealIds().size() == 0)
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -115,6 +119,62 @@ public class SpoonacularController {
         ResponseEntity<ArrayList<Meal>> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, request, new ParameterizedTypeReference<ArrayList<Meal>>() {
         });
 
+        return response;
+    }
+
+    @PostMapping("add")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<MealRecipe> addMeal(@RequestBody AddMealDTO addMealDTO) {
+        System.out.println("Meal id: " + addMealDTO.getId());
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        ResponseEntity<NutritionInfo> nutritionInfoResponseEntity = getNutritionInfoApi(addMealDTO.getId());
+        NutritionInfo nutritionInfo = nutritionInfoResponseEntity.getBody();
+
+        MealRecipe mealRecipe = new MealRecipe();
+        mealRecipe.setIngredients(new ArrayList<>());
+        mealRecipe.setName(addMealDTO.getTitle());
+        mealRecipe.setMealEnum(addMealDTO.getMealEnum());
+        mealRecipe.setCalories(Double.parseDouble(nutritionInfo.getCalories()));
+        mealRecipe.setCarbohydrates(Double.parseDouble(nutritionInfo.getCarbs().substring(0, nutritionInfo.getCarbs().length() - 1)));
+        mealRecipe.setProtein(Double.parseDouble(nutritionInfo.getProtein().substring(0, nutritionInfo.getProtein().length() - 1)));
+        mealRecipe.setFat(Double.parseDouble(nutritionInfo.getFat().substring(0, nutritionInfo.getFat().length() - 1)));
+        nutritionInfo.getBad().forEach(nutritionItem -> {
+            if (nutritionItem.getTitle().equals("Saturated Fat"))
+                mealRecipe.setSaturatedFat(Double.parseDouble(nutritionItem.getAmount().substring(0, nutritionItem.getAmount().length() - 1)));
+            if (nutritionItem.getTitle().equals("Sugar"))
+                mealRecipe.setSugars(Double.parseDouble(nutritionItem.getAmount().substring(0, nutritionItem.getAmount().length() - 1)));
+        });
+
+        spoonacularService.addMealFromApi(mealRecipe,email);
+        spoonacularService.deleteMealFromPlan(email, addMealDTO.getId());
+
+        return new ResponseEntity<>(mealRecipe, HttpStatus.OK);
+    }
+
+    @GetMapping("search-meals/{value}")
+    public ResponseEntity<SearchMealResult> searchMeals(@PathVariable("value") String searchValue){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(complexSearchUrl)
+                .queryParam("query", searchValue)
+                .queryParam("apiKey", apiKey);
+        HttpEntity request = new HttpEntity(headers);
+        ResponseEntity<SearchMealResult> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, request, SearchMealResult.class);
+        System.out.println(response.getBody());
+        return response;
+    }
+
+    private ResponseEntity<NutritionInfo> getNutritionInfoApi(Integer id){
+        String url = String.format("https://api.spoonacular.com/recipes/%d/nutritionWidget.json", id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(url)
+                .queryParam("apiKey", apiKey);
+        HttpEntity request = new HttpEntity(headers);
+        ResponseEntity<NutritionInfo> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, request, NutritionInfo.class);
         return response;
     }
 }

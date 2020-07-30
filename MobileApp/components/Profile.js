@@ -161,13 +161,15 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   button: {
-    backgroundColor: 'white',
+    backgroundColor: '#353535',
     paddingVertical: 10,
     marginTop: 'auto',
   },
   buttonText: {
     textAlign: 'center',
     textTransform: 'uppercase',
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 

@@ -16,7 +16,6 @@ const GenerateMealPlanModal = props => {
   const [mealPlan, setMealPlan] = useState(null);
 
   useEffect(() => {
-    console.log('MOUNTED');
     getMealPlan();
   }, []);
 

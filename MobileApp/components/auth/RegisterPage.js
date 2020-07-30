@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import {Picker} from '@react-native-community/picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import Logo from './Logo';
 import {Actions} from 'react-native-router-flux';
 import Axios from 'axios';
 
@@ -25,18 +24,6 @@ const RegisterPage = () => {
   const [weight, setWeight] = useState('');
   const [activity, setActivity] = useState('ACTIVE');
   const register = () => {
-    console.log({
-      email: email,
-      password1: password1,
-      password2: password2,
-      firstName: firstName,
-      lastName: lastName,
-      age: +age,
-      gender: gender,
-      height: +height,
-      weight: +weight,
-      activity: activity,
-    });
     if (
       email === '' ||
       password1 === '' ||
@@ -67,6 +54,10 @@ const RegisterPage = () => {
     }
     if (height < 1) {
       ToastAndroid.show('Positive numbers only', ToastAndroid.SHORT);
+      return;
+    }
+    if (password1 !== password2) {
+      ToastAndroid.show('Passwords do not match', ToastAndroid.SHORT);
       return;
     }
 

@@ -12,6 +12,7 @@ import MealPlan from './MealPlan';
 
 const AddMealModal = props => {
   const [tabView, setTabView] = useState(null);
+  const [active, setActive] = useState(0);
 
   useEffect(() => {
     setTabView(<SearchMeals />);
@@ -23,23 +24,46 @@ const AddMealModal = props => {
         <TouchableWithoutFeedback>
           <View style={styles.modalView}>
             <View style={styles.header}>
-              <TouchableOpacity onPress={() => setTabView(<SearchMeals />)}>
-                <Text style={styles.modalText}>Search meal</Text>
+              <TouchableOpacity
+                style={active === 0 ? styles.activeTab : null}
+                onPress={() => {
+                  setTabView(<SearchMeals />);
+                  setActive(0);
+                }}>
+                <Text
+                  style={[
+                    styles.modalText,
+                    active === 0 ? styles.activeTabText : null,
+                  ]}>
+                  Search meal
+                </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => setTabView(<MealPlan />)}>
-                <Text style={styles.modalText}>My plan</Text>
+              <TouchableOpacity
+                style={active === 1 ? styles.activeTab : null}
+                onPress={() => {
+                  setTabView(
+                    <MealPlan
+                      closeModal={() => props.hideModal(false)}
+                      addMealToList={props.addMealToList}
+                    />,
+                  );
+                  setActive(1);
+                }}>
+                <Text
+                  style={[
+                    styles.modalText,
+                    active === 1 ? styles.activeTabText : null,
+                  ]}>
+                  My plan
+                </Text>
               </TouchableOpacity>
             </View>
             {tabView}
-            <TouchableHighlight
-              style={{
-                ...styles.openButton,
-                backgroundColor: '#2196F3',
-                marginTop: 30,
-              }}
+            <TouchableOpacity
+              style={styles.closeButton}
               onPress={() => props.hideModal(false)}>
-              <Text style={styles.textStyle}>Close</Text>
-            </TouchableHighlight>
+              <Text>Close</Text>
+            </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>
       </View>
@@ -91,6 +115,21 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
+    fontSize: 15,
+  },
+  activeTabText: {
+    fontWeight: 'bold',
+  },
+  activeTab: {
+    borderBottomColor: 'rgb(0, 255, 152)',
+    borderBottomWidth: 2,
+  },
+  closeButton: {
+    elevation: 4,
+    backgroundColor: 'white',
+    marginTop: 30,
+    padding: 10,
+    borderRadius: 30,
   },
 });
 

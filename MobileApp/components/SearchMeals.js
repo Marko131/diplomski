@@ -5,8 +5,9 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  TouchableHighlight,
   ScrollView,
+  Image,
+  ImageBackground,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Axios from 'axios';
@@ -16,24 +17,22 @@ const SearchMeals = () => {
   const [searchValue, setSearchValue] = useState('');
   const [meals, setMeals] = useState([]);
 
-  const searchMeals = async () => {
+  const searchMeals = () => {
     if (searchValue == '') return;
-    const value = await AsyncStorage.getItem('access_token');
-    if (value !== null) {
-      Axios.get(`http://10.0.2.2:8080/day/meal/search/${searchValue}`, {
-        headers: {'X-Auth-Token': value},
-      })
-        .then(response => setMeals(response.data))
-        .catch(error => alert(error));
-    }
+
+    Axios.get(`http://10.0.2.2:8080/search-meals/${searchValue}`)
+      .then(response => setMeals(response.data.results))
+      .catch(error => alert(error));
   };
 
   const submitMeal = async id => {
     const value = await AsyncStorage.getItem('access_token');
     if (value !== null) {
       Axios.post(
-        `http://10.0.2.2:8080/day/meal/${id}`,
-        {},
+        `http://10.0.2.2:8080/add`,
+        {
+          id: id,
+        },
         {
           headers: {'X-Auth-Token': value},
         },
@@ -49,6 +48,7 @@ const SearchMeals = () => {
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
+          marginTop: 10,
         }}>
         <TextInput
           placeholder="Search meals..."
@@ -61,14 +61,22 @@ const SearchMeals = () => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView>
+      <ScrollView style={styles.mealList} horizontal={true}>
         {meals.map((meal, index) => (
-          <View key={index} style={styles.searchItem}>
-            <Text>{meal.name}</Text>
-            <TouchableOpacity onPress={() => submitMeal(meal.id)}>
-              <Icon name="add" size={25} color="#353535" />
-            </TouchableOpacity>
-          </View>
+          <ImageBackground
+            key={index}
+            style={styles.searchItem}
+            source={{uri: meal.image}}>
+            <Text style={styles.mealTitle}>{meal.title}</Text>
+            <View style={styles.actions}>
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => submitMeal(meal)}>
+                <Icon name="add" size={25} color="white" />
+                <Text style={{color: 'white'}}>Add</Text>
+              </TouchableOpacity>
+            </View>
+          </ImageBackground>
         ))}
       </ScrollView>
     </>
@@ -98,10 +106,28 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   searchItem: {
+    width: 200,
+    height: 200,
+    margin: 10,
+    elevation: 3,
+  },
+  mealList: {},
+  mealTitle: {
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    padding: 5,
+    textAlign: 'center',
+    color: 'white',
+    fontSize: 17,
+  },
+  actions: {
+    marginTop: 'auto',
+  },
+  addButton: {
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
 });
 

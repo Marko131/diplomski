@@ -71,20 +71,6 @@ public class MealRecipe {
         return id;
     }
 
-    @Override
-    public String toString() {
-        return "MealRecipe{" +
-                "id=" + id +
-                ", ingredients=" + ingredients +
-                ", calories=" + calories +
-                ", protein=" + protein +
-                ", fat=" + fat +
-                ", carbohydrates=" + carbohydrates +
-                ", sugars=" + sugars +
-                ", saturatedFat=" + saturatedFat +
-                '}';
-    }
-
     public void setId(Integer id) {
         this.id = id;
     }
@@ -175,5 +161,22 @@ public class MealRecipe {
         if (o == null || getClass() != o.getClass()) return false;
         MealRecipe that = (MealRecipe) o;
         return Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public String toString() {
+        return "MealRecipe{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", mealEnum=" + mealEnum +
+                ", ingredients=" + ingredients +
+                ", description='" + description + '\'' +
+                ", calories=" + calories +
+                ", protein=" + protein +
+                ", fat=" + fat +
+                ", carbohydrates=" + carbohydrates +
+                ", sugars=" + sugars +
+                ", saturatedFat=" + saturatedFat +
+                '}';
     }
 }

@@ -29,12 +29,15 @@ public class UserDayService {
     private NotificationRepository notificationRepository;
 
     @Autowired
+    private UserDetailsServiceImpl userDetailsService;
+
+    @Autowired
     private KieContainer kieContainer;
 
     @Autowired
     private SessionService sessionService;
 
-    public MealRecipe addMeal(Integer mealID, User user){
+    public MealRecipe addMeal(Integer mealID, User user) {
         UserDay userDay = userDayRepository.findByDateAndUser(new Date(), user);
         if (userDay == null) userDay = new UserDay(user);
 
@@ -87,14 +90,14 @@ public class UserDayService {
 
     }
 
-    public void testEvent(MealRecipe mealRecipe, User user)  {
+    public void testEvent(MealRecipe mealRecipe, User user) {
         KieSession kieSession = sessionService.getKieSession();
         kieSession.insert(mealRecipe);
         kieSession.insert(user);
         kieSession.fireAllRules();
     }
 
-    public void getEvent(User user){
+    public void getEvent(User user) {
         KieSession kieSession = sessionService.getKieSession();
         kieSession.insert(user);
         Notification notification = notificationRepository.findFirstByDateAndUserOrderByIdDesc(new Date(), user);
@@ -106,7 +109,23 @@ public class UserDayService {
         notificationRepository.save(notification);
     }
 
-    private List<MealRecipe> sortMealRecipes(List<MealRecipe> mealRecipes){
+    public void removeMeal(String userEmail, Integer mealId) {
+        User user = userDetailsService.findUserByEmail(userEmail);
+        UserDay userDay = userDayRepository.findByDateAndUser(new Date(), user);
+        if (userDay == null) return;
+        int index = -1;
+        for (int i = 0; i < userDay.getMealRecipes().size(); i++) {
+            if (userDay.getMealRecipes().get(i).getId().equals(mealId)) index = i;
+        }
+        if (index != -1){
+            userDay.getMealRecipes().remove(index);
+            userDayRepository.save(userDay);
+        }
+
+
+    }
+
+    private List<MealRecipe> sortMealRecipes(List<MealRecipe> mealRecipes) {
         KieSession kieSession = kieContainer.newKieSession("meal-session");
         kieSession.getAgenda().getAgendaGroup("sort").setFocus();
         mealRecipes.forEach(kieSession::insert);
