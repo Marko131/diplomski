@@ -6,14 +6,17 @@ import {
   StyleSheet,
   TouchableOpacity,
   TouchableHighlight,
+  ActivityIndicator,
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import Axios from 'axios';
 import MealCard from './MealCard';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {api_url} from './config/Config';
 
 const GenerateMealPlanModal = props => {
   const [mealPlan, setMealPlan] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     getMealPlan();
@@ -34,14 +37,16 @@ const GenerateMealPlanModal = props => {
   };
 
   const generateMealPlan = async () => {
+    setLoading(true);
     const token = await AsyncStorage.getItem('access_token');
     if (token !== null) {
-      Axios.get(`http://10.0.2.2:8080/generate-meal-plan`, {
+      Axios.get(`${api_url}/generate-meal-plan`, {
         headers: {'X-Auth-Token': token},
       })
         .then(response => {
           setMealPlan(response.data);
           AsyncStorage.setItem('meal_plan', JSON.stringify(response.data));
+          setLoading(false);
         })
         .catch(error => alert(error));
     }
@@ -52,7 +57,7 @@ const GenerateMealPlanModal = props => {
     if (token !== null) {
       const mealIds = mealPlan.meals.map(meal => meal.id);
       Axios.post(
-        `http://10.0.2.2:8080/meal-plan`,
+        `${api_url}/meal-plan`,
         {
           mealIds: mealIds,
         },
@@ -74,7 +79,11 @@ const GenerateMealPlanModal = props => {
         <TouchableWithoutFeedback>
           <View style={styles.modalView}>
             <Text style={styles.modalText}>Recommended meals</Text>
-            {mealCards()}
+            {loading ? (
+              <ActivityIndicator size="large" color="black" />
+            ) : (
+              mealCards()
+            )}
             <View style={styles.actionsView}>
               <TouchableOpacity
                 onPress={() => acceptMealPlan()}

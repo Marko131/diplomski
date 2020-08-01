@@ -6,41 +6,68 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Image,
   ImageBackground,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Axios from 'axios';
 import AsyncStorage from '@react-native-community/async-storage';
+import {api_url} from './config/Config';
 
-const SearchMeals = () => {
+const SearchMeals = props => {
   const [searchValue, setSearchValue] = useState('');
   const [meals, setMeals] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const searchMeals = () => {
     if (searchValue == '') return;
-
-    Axios.get(`http://10.0.2.2:8080/search-meals/${searchValue}`)
-      .then(response => setMeals(response.data.results))
+    setLoading(true);
+    Axios.get(`${api_url}/search-meals/${searchValue}`)
+      .then(response => {
+        setMeals(response.data.results);
+        setLoading(false);
+      })
       .catch(error => alert(error));
   };
 
-  const submitMeal = async id => {
+  const submitMeal = async meal => {
     const value = await AsyncStorage.getItem('access_token');
     if (value !== null) {
       Axios.post(
-        `http://10.0.2.2:8080/add`,
+        `${api_url}/add`,
         {
-          id: id,
+          id: meal.id,
+          title: meal.title,
         },
         {
           headers: {'X-Auth-Token': value},
         },
       )
-        .then(response => props.addMealToList(response.data))
+        .then(response => {
+          props.addMealToList(response.data);
+          props.closeModal();
+        })
         .catch(error => alert(error));
     }
   };
+
+  const showMeals = () =>
+    meals.map((meal, index) => (
+      <ImageBackground
+        key={index}
+        style={styles.searchItem}
+        source={{uri: meal.image}}>
+        <Text style={styles.mealTitle}>{meal.title}</Text>
+        <View style={styles.actions}>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => submitMeal(meal)}>
+            <Icon name="add" size={25} color="white" />
+            <Text style={{color: 'white'}}>Add</Text>
+          </TouchableOpacity>
+        </View>
+      </ImageBackground>
+    ));
   return (
     <>
       <View
@@ -56,28 +83,21 @@ const SearchMeals = () => {
           onChangeText={value => setSearchValue(value)}
           style={styles.input}
         />
-        <TouchableOpacity onPress={searchMeals}>
+        <TouchableOpacity onPress={searchMeals} disabled={loading}>
           <Icon name="search" size={25} color="#353535" />
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.mealList} horizontal={true}>
-        {meals.map((meal, index) => (
-          <ImageBackground
-            key={index}
-            style={styles.searchItem}
-            source={{uri: meal.image}}>
-            <Text style={styles.mealTitle}>{meal.title}</Text>
-            <View style={styles.actions}>
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={() => submitMeal(meal)}>
-                <Icon name="add" size={25} color="white" />
-                <Text style={{color: 'white'}}>Add</Text>
-              </TouchableOpacity>
-            </View>
-          </ImageBackground>
-        ))}
+        {loading ? (
+          <ActivityIndicator
+            style={{marginTop: 10}}
+            size="large"
+            color="black"
+          />
+        ) : (
+          showMeals()
+        )}
       </ScrollView>
     </>
   );
@@ -109,6 +129,7 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     margin: 10,
+    marginTop: 10,
     elevation: 3,
   },
   mealList: {},

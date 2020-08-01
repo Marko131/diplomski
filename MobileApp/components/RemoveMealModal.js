@@ -9,12 +9,13 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Axios from 'axios';
 import AsyncStorage from '@react-native-community/async-storage';
+import {api_url} from './config/Config';
 
 const RemoveMealModal = props => {
   const removeMeal = async id => {
     const value = await AsyncStorage.getItem('access_token');
     if (value !== null)
-      Axios.delete(`http://10.0.2.2:8080/meal/${id}`, {
+      Axios.delete(`${api_url}/meal/${id}`, {
         headers: {'X-Auth-Token': value},
       }).then(() => {
         props.hideModal();

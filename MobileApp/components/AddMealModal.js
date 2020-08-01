@@ -15,7 +15,12 @@ const AddMealModal = props => {
   const [active, setActive] = useState(0);
 
   useEffect(() => {
-    setTabView(<SearchMeals />);
+    setTabView(
+      <SearchMeals
+        addMealToList={props.addMealToList}
+        closeModal={() => props.hideModal(false)}
+      />,
+    );
   }, []);
 
   return (
@@ -27,7 +32,12 @@ const AddMealModal = props => {
               <TouchableOpacity
                 style={active === 0 ? styles.activeTab : null}
                 onPress={() => {
-                  setTabView(<SearchMeals />);
+                  setTabView(
+                    <SearchMeals
+                      addMealToList={props.addMealToList}
+                      closeModal={() => props.hideModal(false)}
+                    />,
+                  );
                   setActive(0);
                 }}>
                 <Text

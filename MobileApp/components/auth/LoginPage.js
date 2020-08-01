@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   TextInput,
@@ -6,16 +6,20 @@ import {
   TouchableOpacity,
   Text,
   ToastAndroid,
+  ActivityIndicator,
 } from 'react-native';
 import {Actions} from 'react-native-router-flux';
 import AsyncStorage from '@react-native-community/async-storage';
 import Axios from 'axios';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Logo from './Logo';
+import Config from 'react-native-config';
+import {api_url} from '../config/Config';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const login = () => {
     if (email === '') {
@@ -26,21 +30,26 @@ const LoginPage = () => {
       ToastAndroid.show('Password is required !', ToastAndroid.SHORT);
       return;
     }
-    Axios.post('http://10.0.2.2:8080/login', {
+    setLoading(true);
+    Axios.post(`${api_url}/login`, {
       email: email,
       password: password,
     })
       .then(response => {
         AsyncStorage.setItem('access_token', response.data)
-          .then(() => Actions.replace('home'))
+          .then(() => {
+            Actions.replace('home');
+            setLoading(false);
+          })
           .catch(error => alert(error));
       })
-      .catch(error =>
+      .catch(error => {
         ToastAndroid.show(
           'Email or password is incorrect !',
           ToastAndroid.SHORT,
-        ),
-      );
+        );
+        setLoading(false);
+      });
   };
   return (
     <View style={styles.container}>
@@ -50,6 +59,7 @@ const LoginPage = () => {
         <Icon style={styles.placeholderIcon} name="mail" size={25} />
         <TextInput
           placeholder="Email"
+          value={email}
           onChangeText={value => setEmail(value)}
           style={styles.input}
           placeholderTextColor="#aaaaaa"
@@ -60,6 +70,7 @@ const LoginPage = () => {
         <Icon style={styles.placeholderIcon} name="lock" size={25} />
         <TextInput
           placeholder="Password"
+          value={password}
           onChangeText={value => setPassword(value)}
           style={styles.input}
           placeholderTextColor="#aaaaaa"
@@ -67,8 +78,15 @@ const LoginPage = () => {
         />
       </View>
 
-      <TouchableOpacity onPress={login} style={styles.loginButton}>
-        <Text style={styles.loginText}>Login</Text>
+      <TouchableOpacity
+        onPress={login}
+        style={styles.loginButton}
+        disabled={loading}>
+        {loading ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text style={styles.loginText}>Login</Text>
+        )}
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -114,6 +132,9 @@ const styles = StyleSheet.create({
     width: '70%',
     paddingVertical: 10,
     borderRadius: 25,
+    height: 50,
+    display: 'flex',
+    justifyContent: 'center',
   },
   loginText: {
     color: 'white',

@@ -11,6 +11,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import {Picker} from '@react-native-community/picker';
 import Axios from 'axios';
 import AsyncStorage from '@react-native-community/async-storage';
+import {api_url} from './config/Config';
 
 const Profile = props => {
   const [age, setAge] = useState(0);
@@ -37,7 +38,7 @@ const Profile = props => {
         return;
       }
       Axios.post(
-        'http://10.0.2.2:8080/profile',
+        `${api_url}/profile`,
         {
           age: +age,
           height: +height,
