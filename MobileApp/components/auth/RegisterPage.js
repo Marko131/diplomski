@@ -6,11 +6,14 @@ import {
   StyleSheet,
   TouchableOpacity,
   ToastAndroid,
+  ActivityIndicator,
 } from 'react-native';
 import {Picker} from '@react-native-community/picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {Actions} from 'react-native-router-flux';
 import Axios from 'axios';
+
+import {api_url} from '../config/Config';
 
 const RegisterPage = () => {
   const [email, setEmail] = useState('');
@@ -23,6 +26,8 @@ const RegisterPage = () => {
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [activity, setActivity] = useState('ACTIVE');
+  const [loading, setLoading] = useState(false);
+
   const register = () => {
     if (
       email === '' ||
@@ -60,8 +65,8 @@ const RegisterPage = () => {
       ToastAndroid.show('Passwords do not match', ToastAndroid.SHORT);
       return;
     }
-
-    Axios.post('http://10.0.2.2:8080/register', {
+    setLoading(true);
+    Axios.post(`${api_url}/register`, {
       email: email,
       password1: password1,
       password2: password2,
@@ -74,18 +79,17 @@ const RegisterPage = () => {
       activity: activity,
     })
       .then(response => {
-        console.log(response.data);
         ToastAndroid.show('Your account has been created', ToastAndroid.SHORT);
+        setLoading(false);
         Actions.replace('login');
       })
       .catch(error => {
         alert(error);
-        console.log(error);
       });
   };
   return (
     <View style={styles.body}>
-      <Text style={styles.heading}>Create account </Text>
+      <Text style={styles.heading}>Create an account </Text>
 
       <View style={styles.inputContainer}>
         <Icon style={styles.placeholderIcon} name="mail" size={25} />
@@ -185,8 +189,15 @@ const RegisterPage = () => {
         </Picker>
       </View>
 
-      <TouchableOpacity onPress={register} style={styles.registerButton}>
-        <Text style={styles.registerText}>Register</Text>
+      <TouchableOpacity
+        onPress={register}
+        style={styles.registerButton}
+        disabled={loading}>
+        {loading ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Text style={styles.registerText}>Register</Text>
+        )}
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -244,6 +255,9 @@ const styles = StyleSheet.create({
     width: '70%',
     paddingVertical: 10,
     borderRadius: 25,
+    height: 45,
+    display: 'flex',
+    justifyContent: 'center',
   },
   registerText: {
     color: 'white',

@@ -1,12 +1,13 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, ActivityIndicator} from 'react-native';
 import ProgressCircle from 'react-native-progress-circle';
 const CalorieCounter = props => {
   const [calories, setCalories] = useState(0);
   const [totalCalories, setTotalCalories] = useState(0);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     let cal = props.profile.calories;
-
     props.day.mealRecipes
       ? props.day.mealRecipes.forEach(meal => {
           cal -= meal.calories;
@@ -15,8 +16,7 @@ const CalorieCounter = props => {
 
     props.day.user ? setTotalCalories(props.day.user.calories) : null;
     setCalories(parseInt(cal));
-    console.log('Cal', calories);
-    console.log('Total', totalCalories);
+    props.day.mealRecipes ? setLoading(false) : null;
   }, [props]);
   return (
     <>
@@ -27,19 +27,27 @@ const CalorieCounter = props => {
           borderWidth={11}
           color={calories >= 0 ? 'rgba(0, 255, 152, 1)' : '#d50000'}
           bgColor="#353535">
-          <Text
-            style={
-              calories >= 0 ? styles.counterTextLeft : styles.counterTextOver
-            }>
-            {calories >= 0 ? parseInt(calories) : parseInt(0 - calories)}
-          </Text>
-          <Text
-            style={{
-              color: calories >= 0 ? 'rgba(0, 255, 152, 1)' : 'red',
-              fontSize: 19,
-            }}>
-            calories {calories >= 0 ? 'left' : 'over'}
-          </Text>
+          {props.loading || loading ? (
+            <ActivityIndicator size="large" color="rgba(0, 255, 152, 1)" />
+          ) : (
+            <>
+              <Text
+                style={
+                  calories >= 0
+                    ? styles.counterTextLeft
+                    : styles.counterTextOver
+                }>
+                {calories >= 0 ? parseInt(calories) : parseInt(0 - calories)}
+              </Text>
+              <Text
+                style={{
+                  color: calories >= 0 ? 'rgba(0, 255, 152, 1)' : 'red',
+                  fontSize: 19,
+                }}>
+                calories {calories >= 0 ? 'left' : 'over'}
+              </Text>
+            </>
+          )}
         </ProgressCircle>
       </View>
     </>

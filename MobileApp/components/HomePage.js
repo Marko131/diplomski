@@ -1,5 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import {SafeAreaView, View, StyleSheet, Text, Dimensions} from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  Text,
+  Dimensions,
+  ActivityIndicator,
+} from 'react-native';
 import CalorieCounter from './CalorieCounter';
 import MacroContainer from './MacroContainer';
 import Navigation from './Navigation';
@@ -8,7 +15,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Actions} from 'react-native-router-flux';
 import AsyncStorage from '@react-native-community/async-storage';
 import Axios from 'axios';
-
+import {api_url} from './config/Config';
 const screenWidth = Math.round(Dimensions.get('window').width);
 
 const HomePage = () => {
@@ -17,6 +24,7 @@ const HomePage = () => {
   const [date, setDate] = useState(new Date());
   const [day, setDay] = useState({});
   const [view, setView] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     _retrieveData();
@@ -27,12 +35,16 @@ const HomePage = () => {
       const value = await AsyncStorage.getItem('access_token');
       if (value !== null) {
         setAccessToken(value);
-        Axios.get('http://10.0.2.2:8080/profile', {
+        setLoading(true);
+        Axios.get(`${api_url}/profile`, {
           headers: {'X-Auth-Token': value},
         })
-          .then(response => setProfile(response.data))
+          .then(response => {
+            setProfile(response.data);
+            setLoading(false);
+          })
           .catch(error => Actions.replace('login'));
-        Axios.get('http://10.0.2.2:8080/day/meal', {
+        Axios.get(`${api_url}/day/meal`, {
           headers: {'X-Auth-Token': value},
         })
           .then(response => {
@@ -63,7 +75,7 @@ const HomePage = () => {
           </View>
 
           <View style={{flex: 1, marginHorizontal: 10}}>
-            <CalorieCounter profile={profile} day={day} />
+            <CalorieCounter profile={profile} day={day} loading={loading} />
           </View>
 
           <View style={styles.totalCalories}>

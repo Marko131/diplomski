@@ -5,6 +5,7 @@ import Axios from 'axios';
 import MealCard from './MealCard';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {Picker} from '@react-native-community/picker';
+import {api_url} from './config/Config';
 
 const MealPlan = props => {
   const [meals, setMeals] = useState([]);
@@ -18,7 +19,7 @@ const MealPlan = props => {
     const value = await AsyncStorage.getItem('access_token');
 
     if (value !== null) {
-      Axios.get(`http://10.0.2.2:8080/meal-plan`, {
+      Axios.get(`${api_url}/meal-plan`, {
         headers: {'X-Auth-Token': value},
       })
         .then(response => {
@@ -33,7 +34,7 @@ const MealPlan = props => {
     const value = await AsyncStorage.getItem('access_token');
     if (value !== null) {
       Axios.post(
-        `http://10.0.2.2:8080/add`,
+        `${api_url}/add`,
         {id: meal.id, title: meal.title, mealEnum: mealEnum},
         {headers: {'X-Auth-Token': value}},
       )

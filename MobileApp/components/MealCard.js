@@ -9,12 +9,13 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Axios from 'axios';
 import NutritionInfo from './NutritionInfo';
+import {api_url} from './config/Config';
 
 const MealCard = ({meal}) => {
   const [details, setDetails] = useState(null);
 
   const showDetails = id => {
-    Axios.get(`http://10.0.2.2:8080/nutrition-info/${id}`).then(response => {
+    Axios.get(`${api_url}/nutrition-info/${id}`).then(response => {
       const nutritionInfo = response.data;
       setDetails(<NutritionInfo nutritionInfo={nutritionInfo} />);
     });
