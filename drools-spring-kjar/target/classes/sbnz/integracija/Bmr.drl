@@ -4,20 +4,28 @@ import ftn.sbnz.SbnzProject.model.User
 import ftn.sbnz.SbnzProject.model.Gender
 import ftn.sbnz.SbnzProject.model.Activity
 
-rule "BMR Female" salience 20
+rule "Mifflin-St Jeor Female" salience 20
     when
         u: User(gender == Gender.FEMALE)
     then
-        u.setBmr(9.247 * u.getWeight() + 3.098 * u.getHeight() - 4.33 * u.getAge() + 447.593);
+        u.setBmr(10 * u.getWeight() + 6.25 * u.getHeight() - 5 * u.getAge() - 161);
         update(u)
 end
 
-rule "BMR Male" salience 20
+rule "Mifflin-St Jeor Male" salience 20
     when
         u: User(gender == Gender.MALE)
     then
-        u.setBmr(13.397 * u.getWeight() + 4.799 * u.getHeight() - 5.677 * u.getAge() + 88.362);
+        u.setBmr(10 * u.getWeight() + 6.25 * u.getHeight() - 5 * u.getAge() + 5);
         update(u)
+end
+
+rule "Katch-McArdle" salience 21
+    when
+        u: User($bf: bodyFat)
+        eval($bf != null)
+    then
+        u.setBmr(370 + 21.6 * (1 - u.getBodyFat() / 100) * u.getWeight());
 end
 
 rule "Calorie SEDENTARY" salience 10

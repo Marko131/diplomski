@@ -1,11 +1,11 @@
 package ftn.sbnz.SbnzProject.service;
 
-import ftn.sbnz.SbnzProject.model.MealRecipe;
-import ftn.sbnz.SbnzProject.model.User;
-import ftn.sbnz.SbnzProject.model.UserDay;
-import ftn.sbnz.SbnzProject.model.UserMealPlan;
+import ftn.sbnz.SbnzProject.model.*;
+import ftn.sbnz.SbnzProject.repository.NotificationRepository;
 import ftn.sbnz.SbnzProject.repository.UserDayRepository;
 import ftn.sbnz.SbnzProject.repository.UserMealPlanRepository;
+import org.kie.api.runtime.KieContainer;
+import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +22,12 @@ public class SpoonacularService {
 
     @Autowired
     private UserDayRepository userDayRepository;
+
+    @Autowired
+    private KieContainer kieContainer;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     public UserMealPlan addMealPlan(UserMealPlan userMealPlan, String userEmail) {
         User user = userDetailsService.findUserByEmail(userEmail);
@@ -43,6 +49,17 @@ public class SpoonacularService {
         userDay.getMealRecipes().add(mealRecipe);
         userDayRepository.save(userDay);
 
+        Notification notification = new Notification(user);
+        KieSession kieSession = kieContainer.newKieSession("day-session");
+        kieSession.getAgenda().getAgendaGroup("day-rules").setFocus();
+        kieSession.insert(userDay);
+        kieSession.insert(notification);
+
+        Notification notification1 = checkMeal(userDay, notification);
+
+        kieSession.fireAllRules();
+        notificationRepository.save(notification1);
+
     }
 
     public void deleteMealFromPlan(String userEmail, Integer mealId) {
@@ -55,6 +72,15 @@ public class SpoonacularService {
         }
         if (index != -1) mealPlan.getMealIds().remove(index);
         userMealPlanRepository.save(mealPlan);
+    }
+
+    private Notification checkMeal(UserDay userDay, Notification notification) {
+        KieSession kieSession = kieContainer.newKieSession("meal-session");
+        kieSession.getAgenda().getAgendaGroup("query").setFocus();
+        userDay.getMealRecipes().forEach(kieSession::insert);
+        kieSession.insert(notification);
+        kieSession.fireAllRules();
+        return notification;
     }
 
 }

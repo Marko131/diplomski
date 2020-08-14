@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import {Picker} from '@react-native-community/picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import CommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Actions} from 'react-native-router-flux';
 import Axios from 'axios';
 
@@ -27,6 +28,7 @@ const RegisterPage = () => {
   const [weight, setWeight] = useState('');
   const [activity, setActivity] = useState('ACTIVE');
   const [loading, setLoading] = useState(false);
+  const [bodyFat, setBodyFat] = useState(null);
 
   const register = () => {
     if (
@@ -77,6 +79,7 @@ const RegisterPage = () => {
       height: +height,
       weight: +weight,
       activity: activity,
+      bodyFat: bodyFat ? bodyFat : null,
     })
       .then(response => {
         ToastAndroid.show('Your account has been created', ToastAndroid.SHORT);
@@ -187,6 +190,20 @@ const RegisterPage = () => {
           <Picker.Item label="Very active" value="VERY_ACTIVE" />
           <Picker.Item label="Extra active" value="EXTRA_ACTIVE" />
         </Picker>
+      </View>
+
+      <View style={styles.inputContainer}>
+        <CommunityIcon
+          style={styles.placeholderIcon}
+          name="percent"
+          size={25}
+        />
+        <TextInput
+          style={[styles.input, styles.width1]}
+          placeholder="Body fat (optional)"
+          placeholderTextColor="#aaaaaa"
+          onChangeText={value => setBodyFat(value)}
+        />
       </View>
 
       <TouchableOpacity

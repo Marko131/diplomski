@@ -8,6 +8,7 @@ import {
   ToastAndroid,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import CommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Picker} from '@react-native-community/picker';
 import Axios from 'axios';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -18,6 +19,7 @@ const Profile = props => {
   const [height, setHeight] = useState(0);
   const [weight, setWeight] = useState(0);
   const [activity, setActivity] = useState('ACTIVE');
+  const [bodyFat, setBodyFat] = useState(null);
 
   const submit = async () => {
     const value = await AsyncStorage.getItem('access_token');
@@ -37,6 +39,7 @@ const Profile = props => {
         ToastAndroid.show('Positive numbers only', ToastAndroid.SHORT);
         return;
       }
+      console.log(bodyFat);
       Axios.post(
         `${api_url}/profile`,
         {
@@ -44,6 +47,7 @@ const Profile = props => {
           height: +height,
           weight: +weight,
           activity: activity,
+          bodyFat: bodyFat ? bodyFat : null,
         },
         {headers: {'X-Auth-Token': value}},
       )
@@ -57,6 +61,7 @@ const Profile = props => {
     props.profile ? setHeight(props.profile.height) : 0;
     props.profile ? setWeight(props.profile.weight) : 0;
     props.profile ? setActivity(props.profile.activity) : 'ACTIVE';
+    props.profile ? setBodyFat(props.profile.bodyFat) : null;
   }, []);
 
   return (
@@ -113,6 +118,22 @@ const Profile = props => {
           <Picker.Item label="Very active" value="VERY_ACTIVE" />
           <Picker.Item label="Extra active" value="EXTRA_ACTIVE" />
         </Picker>
+      </View>
+
+      <View style={styles.inputContainer}>
+        <CommunityIcon
+          style={styles.placeholderIcon}
+          name="percent"
+          size={25}
+        />
+        <TextInput
+          style={[styles.input, styles.width1]}
+          keyboardType="numeric"
+          placeholder="Body fat (optional)"
+          placeholderTextColor="#aaaaaa"
+          value={bodyFat?.toString()}
+          onChangeText={value => setBodyFat(value)}
+        />
       </View>
 
       <TouchableOpacity style={styles.button} onPress={() => submit()}>

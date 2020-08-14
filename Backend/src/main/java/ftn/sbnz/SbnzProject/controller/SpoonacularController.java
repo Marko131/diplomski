@@ -48,25 +48,10 @@ public class SpoonacularController {
     private ftn.sbnz.SbnzProject.service.SpoonacularService spoonacularService;
 
 
-    @GetMapping("/api/test")
-    public ResponseEntity<String> test() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        UriComponentsBuilder builder = UriComponentsBuilder
-                .fromHttpUrl(generateMealPlan)
-                .queryParam("apiKey", apiKey);
-
-        HttpEntity request = new HttpEntity(headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, request, String.class);
-        System.out.println(response);
-        return new ResponseEntity<>("OK", HttpStatus.OK);
-    }
-
     @GetMapping("/generate-meal-plan")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<MealPlan> generateMealPlan() {
+        System.out.println("GENERATE MEAL PLAN");
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userDetailsService.findUserByEmail(email);
 
@@ -85,12 +70,14 @@ public class SpoonacularController {
 
     @GetMapping("/nutrition-info/{id}")
     public ResponseEntity<NutritionInfo> getNutritionInfo(@PathVariable("id") Integer id) {
+        System.out.println("NUTRITION INFO");
         return getNutritionInfoApi(id);
     }
 
     @PostMapping("meal-plan")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<UserMealPlan> addMealPlan(@RequestBody UserMealPlan userMealPlan) {
+        System.out.println("ADD MEAL PLAN");
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserMealPlan mealPlan = spoonacularService.addMealPlan(userMealPlan, email);
         return new ResponseEntity<>(mealPlan, HttpStatus.OK);
@@ -99,6 +86,7 @@ public class SpoonacularController {
     @GetMapping("meal-plan")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<ArrayList<Meal>> getMealPlan() {
+        System.out.println("GET MEAL PLAN");
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         UserMealPlan mealPlan = spoonacularService.getMealPlan(email);
 
@@ -125,7 +113,7 @@ public class SpoonacularController {
     @PostMapping("add")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<MealRecipe> addMeal(@RequestBody AddMealDTO addMealDTO) {
-        System.out.println("Meal id: " + addMealDTO.getId());
+        System.out.println("ADD MEAL");
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         ResponseEntity<NutritionInfo> nutritionInfoResponseEntity = getNutritionInfoApi(addMealDTO.getId());
@@ -154,6 +142,7 @@ public class SpoonacularController {
 
     @GetMapping("search-meals/{value}")
     public ResponseEntity<SearchMealResult> searchMeals(@PathVariable("value") String searchValue){
+        System.out.println("SEARCH MEALS");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         UriComponentsBuilder builder = UriComponentsBuilder
@@ -162,11 +151,23 @@ public class SpoonacularController {
                 .queryParam("apiKey", apiKey);
         HttpEntity request = new HttpEntity(headers);
         ResponseEntity<SearchMealResult> response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, request, SearchMealResult.class);
-        System.out.println(response.getBody());
         return response;
     }
 
+    @GetMapping("info/{id}")
+    public ResponseEntity<?> getInfo(@PathVariable("id") Integer id){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl("https://api.spoonacular.com/recipes/" + id + "/information")
+                .queryParam("includeNutrition", "false")
+                .queryParam("apiKey", apiKey);
+        HttpEntity request = new HttpEntity(headers);
+        return restTemplate.exchange(builder.toUriString(), HttpMethod.GET, request, Meal.class);
+    }
+
     private ResponseEntity<NutritionInfo> getNutritionInfoApi(Integer id){
+        System.out.println("GET NUTRITION INFO");
         String url = String.format("https://api.spoonacular.com/recipes/%d/nutritionWidget.json", id);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

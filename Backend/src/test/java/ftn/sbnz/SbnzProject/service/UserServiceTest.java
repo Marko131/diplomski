@@ -42,4 +42,27 @@ public class UserServiceTest {
         assertTrue(user.getBmr() > 0);
         assertTrue(user.getCalories() > 0);
     }
+
+    @Test
+    public void testBMR1() {
+        User testUser = new User("testuser@gmail.com","testpassword", "Test name", "Test last name", 20, Gender.MALE, 180, 90, Activity.LIGHT);
+        testUser.setBodyFat(null);
+        Mockito.when(userRepository.findByEmail("testuser@gmail.com")).thenReturn(null);
+        Mockito.when(userRepository.save(any(User.class))).thenReturn(testUser);
+        User user = userDetailsService.createUser(testUser);
+        System.out.println(user.getBmr());
+
+    }
+
+    @Test
+    public void testBMR2() {
+        User testUser = new User("testuser@gmail.com","testpassword", "Test name", "Test last name", 20, Gender.MALE, 180, 90, Activity.LIGHT);
+        testUser.setBodyFat(20.5);
+        Mockito.when(userRepository.findByEmail("testuser@gmail.com")).thenReturn(null);
+        Mockito.when(userRepository.save(any(User.class))).thenReturn(testUser);
+        User user = userDetailsService.createUser(testUser);
+        System.out.println(user.getBmr());
+
+    }
+
 }

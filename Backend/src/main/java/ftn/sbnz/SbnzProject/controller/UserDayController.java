@@ -62,7 +62,6 @@ public class UserDayController {
     @DeleteMapping("meal/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> removeMeal(@PathVariable("id") Integer id){
-        System.out.println("DELETE MEAL: " + id);
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         userDayService.removeMeal(email, id);
         return new ResponseEntity<>(HttpStatus.OK);

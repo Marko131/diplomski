@@ -25,7 +25,8 @@
     "react-native-reanimated": "^1.8.0",
     "react-native-router-flux": "^4.2.0",
     "react-native-screens": "^2.7.0",
-    "react-native-vector-icons": "^6.6.0"
+    "react-native-vector-icons": "^6.6.0",
+    "react-native-webview": "^10.4.1"
   },
   "devDependencies": {
     "@babel/core": "7.9.6",

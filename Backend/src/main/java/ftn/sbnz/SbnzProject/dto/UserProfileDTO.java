@@ -17,11 +17,12 @@ public class UserProfileDTO {
     private double bmr;
     private double calories;
     private Activity activity;
+    private Double bodyFat;
 
     public UserProfileDTO() {
     }
 
-    public UserProfileDTO(String email, String firstName, String lastName, int age, Gender gender, double height, double weight, double bmi, String bodyStatus, double bmr, double calories, Activity activity) {
+    public UserProfileDTO(String email, String firstName, String lastName, int age, Gender gender, double height, double weight, double bmi, String bodyStatus, double bmr, double calories, Activity activity, Double bodyFat) {
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -34,6 +35,7 @@ public class UserProfileDTO {
         this.bmr = bmr;
         this.calories = calories;
         this.activity = activity;
+        this.bodyFat = bodyFat;
     }
 
     public String getEmail() {
@@ -130,5 +132,13 @@ public class UserProfileDTO {
 
     public void setActivity(Activity activity) {
         this.activity = activity;
+    }
+
+    public Double getBodyFat() {
+        return bodyFat;
+    }
+
+    public void setBodyFat(Double bodyFat) {
+        this.bodyFat = bodyFat;
     }
 }

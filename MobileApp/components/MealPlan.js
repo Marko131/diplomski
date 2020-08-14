@@ -1,5 +1,13 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  WebView,
+  Linking,
+} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import Axios from 'axios';
 import MealCard from './MealCard';
@@ -10,6 +18,7 @@ import {api_url} from './config/Config';
 const MealPlan = props => {
   const [meals, setMeals] = useState([]);
   const [mealEnum, setMealEnum] = useState('BREAKFAST');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     getMeals();
@@ -17,7 +26,7 @@ const MealPlan = props => {
 
   const getMeals = async () => {
     const value = await AsyncStorage.getItem('access_token');
-
+    setLoading(true);
     if (value !== null) {
       Axios.get(`${api_url}/meal-plan`, {
         headers: {'X-Auth-Token': value},
@@ -25,6 +34,7 @@ const MealPlan = props => {
         .then(response => {
           setMeals(response.data);
           console.log(response.data);
+          setLoading(false);
         })
         .catch(error => alert(error));
     }
@@ -32,6 +42,7 @@ const MealPlan = props => {
 
   const addMeal = async meal => {
     const value = await AsyncStorage.getItem('access_token');
+    setLoading(true);
     if (value !== null) {
       Axios.post(
         `${api_url}/add`,
@@ -41,6 +52,7 @@ const MealPlan = props => {
         .then(response => {
           props.addMealToList(response.data);
           props.closeModal();
+          setLoading(false);
         })
         .catch(error => console.log(error));
     }
@@ -60,6 +72,7 @@ const MealPlan = props => {
     ));
   };
 
+  if (loading) return <ActivityIndicator size="large" color="black" />;
   return (
     <View style={{width: '100%'}}>
       {meals?.length > 0 ? (
