@@ -12,7 +12,7 @@ import java.util.List
 
 declare MealEvent
     @role(event)
-    @expires(30s)
+    @expires(3h)
     userId: Integer
     mealEnum: MealEnum
 end
@@ -122,7 +122,7 @@ end
 rule "Wait time 2"
 when
     $user: User()
-    not (MealEvent(userId == $user.id) over window:time(15s))
+    not (MealEvent(userId == $user.id) over window:time(6h))
     $notification: Notification($notifications: text not contains "The wait time between meals should not be more than 6 hours", user == $user)
     then
     delete($user);

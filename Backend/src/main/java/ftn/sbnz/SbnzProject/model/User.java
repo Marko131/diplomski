@@ -1,5 +1,7 @@
 package ftn.sbnz.SbnzProject.model;
 
+import ftn.sbnz.SbnzProject.dto.RegisterUserDTO;
+
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -26,6 +28,8 @@ public class User {
     private double height;
     @Column(nullable = false)
     private double weight;
+    @Column(nullable = true)
+    private Double bodyFat;
     @Column
     private double bmi;
     @Column
@@ -38,6 +42,19 @@ public class User {
     private Activity activity;
 
     public User() {
+    }
+
+    public User(RegisterUserDTO registerUserDTO) {
+        this.email = registerUserDTO.getEmail();
+        this.password = registerUserDTO.getPassword1();
+        this.firstName = registerUserDTO.getFirstName();
+        this.lastName = registerUserDTO.getLastName();
+        this.age = registerUserDTO.getAge();
+        this.gender = registerUserDTO.getGender();
+        this.height = registerUserDTO.getHeight();
+        this.weight = registerUserDTO.getWeight();
+        this.activity = registerUserDTO.getActivity();
+        this.bodyFat = registerUserDTO.getBodyFat();
     }
 
     public User(String email, String password, String firstName, String lastName, int age, Gender gender, double height, double weight, Activity activity) {
@@ -170,6 +187,14 @@ public class User {
         this.activity = activity;
     }
 
+    public Double getBodyFat() {
+        return bodyFat;
+    }
+
+    public void setBodyFat(Double bodyFat) {
+        this.bodyFat = bodyFat;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -182,6 +207,7 @@ public class User {
                 ", gender=" + gender +
                 ", height=" + height +
                 ", weight=" + weight +
+                ", bodyFat=" + bodyFat +
                 ", bmi=" + bmi +
                 ", bodyStatus='" + bodyStatus + '\'' +
                 ", bmr=" + bmr +

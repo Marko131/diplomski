@@ -5,14 +5,18 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Linking,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import Axios from 'axios';
 import NutritionInfo from './NutritionInfo';
 import {api_url} from './config/Config';
+import {WebView} from 'react-native-webview';
 
 const MealCard = ({meal}) => {
   const [details, setDetails] = useState(null);
+  const [ref, setRef] = useState(null);
 
   const showDetails = id => {
     Axios.get(`${api_url}/nutrition-info/${id}`).then(response => {
@@ -21,9 +25,31 @@ const MealCard = ({meal}) => {
     });
   };
 
+  const openInBrowser = () => {
+    console.log(meal.sourceUrl);
+    Linking.canOpenURL(meal.sourceUrl).then(supported => {
+      if (supported) Linking.openURL(meal.sourceUrl);
+    });
+  };
+
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>{meal.title}</Text>
+      <TouchableOpacity
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+        onPress={() => openInBrowser()}>
+        <MaterialIcon
+          name="open-in-browser"
+          size={20}
+          color="rgb(0, 190, 89)"
+        />
+        <Text style={styles.title}>{meal.title}</Text>
+      </TouchableOpacity>
+
       {details}
       {details === null ? (
         <TouchableOpacity onPress={() => showDetails(meal.id)}>

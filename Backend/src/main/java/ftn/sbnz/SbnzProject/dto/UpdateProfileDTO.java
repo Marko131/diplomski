@@ -21,18 +21,13 @@ public class UpdateProfileDTO {
     private Double weight;
     @NotNull(message = "Activity is required")
     private Activity activity;
+    private Double bodyFat;
+
 
     public UpdateProfileDTO() {
 
     }
 
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
 
     public Double getHeight() {
         return height;
@@ -56,5 +51,21 @@ public class UpdateProfileDTO {
 
     public void setActivity(Activity activity) {
         this.activity = activity;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public Double getBodyFat() {
+        return bodyFat;
+    }
+
+    public void setBodyFat(Double bodyFat) {
+        this.bodyFat = bodyFat;
     }
 }

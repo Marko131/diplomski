@@ -87,7 +87,8 @@ const GenerateMealPlanModal = props => {
             <View style={styles.actionsView}>
               <TouchableOpacity
                 onPress={() => acceptMealPlan()}
-                style={styles.actionButton}>
+                style={styles.actionButton}
+                disabled={loading}>
                 <View style={styles.actionButtonContainer}>
                   <Icon name="check" size={25} color="#4caf50" />
                   <Text style={styles.actionButtonText}>Accept</Text>
@@ -96,7 +97,8 @@ const GenerateMealPlanModal = props => {
 
               <TouchableOpacity
                 onPress={() => generateMealPlan()}
-                style={styles.actionButton}>
+                style={styles.actionButton}
+                disabled={loading}>
                 <View style={styles.actionButtonContainer}>
                   <Icon name="refresh" size={25} color="#1e88e5" />
                   <Text style={styles.actionButtonText}>Refresh</Text>

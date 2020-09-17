@@ -53,16 +53,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody RegisterUserDTO registerUserDTO) {
         if (!registerUserDTO.getPassword1().equals(registerUserDTO.getPassword2())) throw new PasswordsDoNotMatchException();
-        User user = new User(
-                registerUserDTO.getEmail(),
-                registerUserDTO.getPassword1(),
-                registerUserDTO.getFirstName(),
-                registerUserDTO.getLastName(),
-                registerUserDTO.getAge(),
-                registerUserDTO.getGender(),
-                registerUserDTO.getHeight(),
-                registerUserDTO.getWeight(),
-                registerUserDTO.getActivity());
+        User user = new User(registerUserDTO);
         userDetailsService.createUser(user);
         return new ResponseEntity<String>("User successfully created", HttpStatus.CREATED);
     }
@@ -72,7 +63,6 @@ public class UserController {
     public ResponseEntity<UserProfileDTO> profile(){
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userDetailsService.findUserByEmail(email);
-        //Day day = mealService.getDay(user);
 
         UserProfileDTO userProfileDTO = new UserProfileDTO(
                 user.getEmail(),
@@ -86,7 +76,8 @@ public class UserController {
                 user.getBodyStatus(),
                 user.getBmr(),
                 user.getCalories(),
-                user.getActivity()
+                user.getActivity(),
+                user.getBodyFat()
         );
         return new ResponseEntity<UserProfileDTO>(userProfileDTO, HttpStatus.OK);
     }
@@ -101,6 +92,7 @@ public class UserController {
         user.setHeight(updateProfileDTO.getHeight());
         user.setWeight(updateProfileDTO.getWeight());
         user.setActivity(updateProfileDTO.getActivity());
+        user.setBodyFat(updateProfileDTO.getBodyFat());
 
         User updated = userDetailsService.updateProfile(user);
 
@@ -116,7 +108,8 @@ public class UserController {
                 updated.getBodyStatus(),
                 updated.getBmr(),
                 updated.getCalories(),
-                updated.getActivity()
+                updated.getActivity(),
+                updated.getBodyFat()
         );
         return new ResponseEntity<>(userProfileDTO, HttpStatus.OK);
     }

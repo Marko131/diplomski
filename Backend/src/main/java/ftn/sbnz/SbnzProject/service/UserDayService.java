@@ -122,6 +122,16 @@ public class UserDayService {
             userDayRepository.save(userDay);
         }
 
+        Notification notification = new Notification(user);
+        KieSession kieSession = kieContainer.newKieSession("day-session");
+        kieSession.getAgenda().getAgendaGroup("day-rules").setFocus();
+        kieSession.insert(userDay);
+        kieSession.insert(notification);
+
+        Notification notification1 = checkMeal(userDay, notification);
+
+        kieSession.fireAllRules();
+        notificationRepository.save(notification1);
 
     }
 

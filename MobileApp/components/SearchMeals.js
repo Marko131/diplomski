@@ -8,6 +8,7 @@ import {
   ScrollView,
   ImageBackground,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Axios from 'axios';
@@ -18,6 +19,7 @@ const SearchMeals = props => {
   const [searchValue, setSearchValue] = useState('');
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [opening, setOpening] = useState(false);
 
   const searchMeals = () => {
     if (searchValue == '') return;
@@ -25,6 +27,7 @@ const SearchMeals = props => {
     Axios.get(`${api_url}/search-meals/${searchValue}`)
       .then(response => {
         setMeals(response.data.results);
+        console.log(response.data.results);
         setLoading(false);
       })
       .catch(error => alert(error));
@@ -51,19 +54,51 @@ const SearchMeals = props => {
     }
   };
 
+  const openInBrowser = id => {
+    setOpening(true);
+    Axios.get(`${api_url}/info/${id}`)
+      .then(response => {
+        setOpening(false);
+        Linking.canOpenURL(response.data.sourceUrl).then(supported => {
+          if (supported) Linking.openURL(response.data.sourceUrl);
+        });
+      })
+      .catch(error => alert(error));
+  };
+
   const showMeals = () =>
     meals.map((meal, index) => (
       <ImageBackground
         key={index}
         style={styles.searchItem}
         source={{uri: meal.image}}>
-        <Text style={styles.mealTitle}>{meal.title}</Text>
+        <TouchableOpacity
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            padding: 5,
+          }}
+          onPress={() => openInBrowser(meal.id)}
+          disabled={opening}>
+          {opening ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Icon name="open-in-browser" color="white" size={20} />
+          )}
+          <Text style={styles.mealTitle}>{meal.title}</Text>
+        </TouchableOpacity>
+
         <View style={styles.actions}>
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => submitMeal(meal)}>
-            <Icon name="add" size={25} color="white" />
-            <Text style={{color: 'white'}}>Add</Text>
+            <Icon name="add" size={20} color="white" />
+            <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16}}>
+              ADD
+            </Text>
           </TouchableOpacity>
         </View>
       </ImageBackground>
@@ -134,11 +169,10 @@ const styles = StyleSheet.create({
   },
   mealList: {},
   mealTitle: {
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    padding: 5,
     textAlign: 'center',
     color: 'white',
     fontSize: 17,
+    marginHorizontal: 5,
   },
   actions: {
     marginTop: 'auto',
@@ -149,6 +183,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.4)',
+    padding: 5,
   },
 });
 

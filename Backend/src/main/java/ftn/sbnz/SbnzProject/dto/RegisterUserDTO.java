@@ -42,21 +42,11 @@ public class RegisterUserDTO {
     @NotNull(message = "Activity is required")
     private Activity activity;
 
+    private Double bodyFat;
+
     public RegisterUserDTO() {
     }
 
-    public RegisterUserDTO(String email, String password1, String password2, String firstName, String lastName, int age, Gender gender, double height, double weight, Activity activity) {
-        this.email = email;
-        this.password1 = password1;
-        this.password2 = password2;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.age = age;
-        this.gender = gender;
-        this.height = height;
-        this.weight = weight;
-        this.activity = activity;
-    }
 
     public String getEmail() {
         return email;
@@ -136,5 +126,25 @@ public class RegisterUserDTO {
 
     public void setActivity(Activity activity) {
         this.activity = activity;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public void setHeight(Double height) {
+        this.height = height;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public Double getBodyFat() {
+        return bodyFat;
+    }
+
+    public void setBodyFat(Double bodyFat) {
+        this.bodyFat = bodyFat;
     }
 }
