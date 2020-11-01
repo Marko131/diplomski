@@ -5,14 +5,36 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #fafafa;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+.form-container {
+  width: 30% !important;
+  padding: 30px;
+}
 
-.input {
-  margin-top: 10px !important;
-  margin-bottom: 10px !important;
+form {
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+}
+
+form > div {
+  margin: 10px 0px !important;
+}
+
+form > button {
+  margin-top: 20px !important;
+}
+
+.table {
+  text-align: center;
+}
+
+.table > table {
+  display: inline-block;
 }

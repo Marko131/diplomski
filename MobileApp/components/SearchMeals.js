@@ -14,12 +14,14 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import Axios from 'axios';
 import AsyncStorage from '@react-native-community/async-storage';
 import {api_url} from './config/Config';
+import {Picker} from '@react-native-community/picker';
 
 const SearchMeals = props => {
   const [searchValue, setSearchValue] = useState('');
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(false);
   const [opening, setOpening] = useState(false);
+  const [mealEnum, setMealEnum] = useState('BREAKFAST');
 
   const searchMeals = () => {
     if (searchValue == '') return;
@@ -41,6 +43,7 @@ const SearchMeals = props => {
         {
           id: meal.id,
           title: meal.title,
+          mealEnum: mealEnum,
         },
         {
           headers: {'X-Auth-Token': value},
@@ -118,6 +121,7 @@ const SearchMeals = props => {
           onChangeText={value => setSearchValue(value)}
           style={styles.input}
         />
+
         <TouchableOpacity onPress={searchMeals} disabled={loading}>
           <Icon name="search" size={25} color="#353535" />
         </TouchableOpacity>
@@ -134,6 +138,15 @@ const SearchMeals = props => {
           showMeals()
         )}
       </ScrollView>
+      <View style={{width: '100%'}}>
+        <Picker
+          selectedValue={mealEnum}
+          onValueChange={(itemValue, itemIndex) => setMealEnum(itemValue)}>
+          <Picker.Item label="Breakfast" value="BREAKFAST" />
+          <Picker.Item label="Lunch" value="LUNCH" />
+          <Picker.Item label="Dinner" value="DINNER" />
+        </Picker>
+      </View>
     </>
   );
 };
